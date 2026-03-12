@@ -1,0 +1,69 @@
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(22, 27, 36, 0.08);
+  overflow: hidden;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+
+  .card-body {
+    padding: 1.6rem 1.6rem;
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+  }
+
+  p.text-muted { margin-bottom: 1rem; }
+
+  input[type="file"].form-control {
+    padding: .5rem .75rem;
+    border-radius: 8px;
+    border: 1px dashed rgba(0,0,0,0.08);
+    background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(250,250,250,0.4));
+  }
+
+  .btn-primary {
+    background: linear-gradient(90deg, #6a00f4 0%, #ff3cac 100%);
+    border: none;
+    box-shadow: 0 6px 18px rgba(111, 66, 193, 0.18);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(111, 66, 193, 0.22);
+  }
+
+  .btn-outline-secondary {
+    border-radius: 8px;
+  }
+
+  .alert-info {
+    background: linear-gradient(90deg, rgba(102,126,234,0.12), rgba(118,75,162,0.08));
+    border: 1px solid rgba(118,75,162,0.06);
+  }
+
+  .alert-danger { background: rgba(255,235,238,0.9); }
+
+  /* result card */
+  .card + .card {
+    margin-top: 1rem;
+  }
+
+  pre.small {
+    background: #0f1724;
+    color: #e6eef8;
+    padding: .75rem;
+    border-radius: 6px;
+    font-size: .85rem;
+    overflow: auto;
+  }
+
+  @media (max-width: 576px) {
+    .card-body { padding: 1rem; }
+    .card-title { font-size: 1.25rem; }
+  }
+}
+
