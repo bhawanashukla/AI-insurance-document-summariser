@@ -14,10 +14,45 @@ export class UploadComponent {
   result: any = null;
   raw = '';
   error: string | null = null;
+  previewUrl: string | null = null;
+  isDragOver = signal(false);
 
   onFile(e: Event) {
     const input = e.target as HTMLInputElement;
-    this.file = input.files?.[0] ?? null;
+    const f = input.files?.[0] ?? null;
+    this.setFile(f);
+  }
+
+  setFile(f: File | null) {
+    if (this.previewUrl) { URL.revokeObjectURL(this.previewUrl); this.previewUrl = null; }
+    this.file = f;
+    if (f && f.type?.startsWith('image/')) {
+      this.previewUrl = URL.createObjectURL(f);
+    } else {
+      this.previewUrl = null;
+    }
+  }
+
+  removeFile() {
+    if (this.previewUrl) { URL.revokeObjectURL(this.previewUrl); this.previewUrl = null; }
+    this.file = null;
+  }
+
+  onDragOver(e: DragEvent) {
+    e.preventDefault();
+    this.isDragOver.set(true);
+  }
+
+  onDragLeave(e: DragEvent) {
+    e.preventDefault();
+    this.isDragOver.set(false);
+  }
+
+  onDrop(e: DragEvent) {
+    e.preventDefault();
+    this.isDragOver.set(false);
+    const f = e.dataTransfer?.files?.[0] ?? null;
+    this.setFile(f);
   }
 
   async upload(useSample: boolean) {
@@ -50,5 +85,18 @@ export class UploadComponent {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  async copyResult() {
+    try {
+      const text = JSON.stringify(this.result ?? {}, null, 2);
+      await navigator.clipboard.writeText(text);
+    } catch (e) { /* no-op */ }
+  }
+
+  async copyRaw() {
+    try {
+      await navigator.clipboard.writeText(this.raw ?? '');
+    } catch (e) { /* no-op */ }
   }
 }
