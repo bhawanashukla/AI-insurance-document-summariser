@@ -1,0 +1,44 @@
+# Root gitignore for the project
+
+# Node modules (frontend and server)
+node_modules/
+**/node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Build outputs
+dist/
+build/
+frontend/dist/
+server/dist/
+out-tsc/
+coverage/
+.cache/
+
+# Environment files
+.env
+server/.env
+frontend/.env
+.env.local
+.env.*.local
+
+# IDE and editor folders
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+.history/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Misc
+.angular/cache/
+.sass-cache/
+.parcel-cache/
