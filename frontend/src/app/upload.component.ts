@@ -63,8 +63,45 @@ export class UploadComponent {
     try {
       const form = new FormData();
       if (useSample) {
-        const resp = await fetch('/sample-insurance.pdf');
-        const blob = await resp.blob();
+        // Prefer fetching the sample from backend (/sample) to avoid dev-server or IDM interception of static assets.
+        // Derive backend base from configured api url or default to localhost:3000
+        const configured = (window as any)['__env_api_url'] || '';
+        const apiBase = configured && configured.includes('/api/') ? configured.replace(/\/api\/.*$/,'') : (configured || 'http://localhost:3000');
+        let blob: Blob | null = null;
+
+        // 1) try backend endpoint
+        try {
+          const resp = await fetch(`${apiBase}/sample`);
+          if (resp.ok) {
+            const b = await resp.blob();
+            if (b && b.size > 0) blob = b;
+          }
+        } catch (e) {
+          // ignore and fallback
+        }
+
+        // 2) fallback to served assets
+        if (!blob) {
+          try {
+            const url = `/assets/sample-insurance.pdf?ts=${Date.now()}`;
+            const resp = await fetch(url);
+            if (resp.ok) {
+              const b = await resp.blob();
+              if (b && b.size > 0) blob = b;
+            }
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        // 3) final fallback: use embedded sample content (ensures feature works even if IDM blocks requests)
+        if (!blob) {
+          const embedded = EMBEDDED_SAMPLE_PDF;
+          const b = new Blob([embedded], { type: 'application/pdf' });
+          if (b && b.size > 0) blob = b;
+        }
+
+        if (!blob) throw new Error('Sample document is empty or unavailable after all fallbacks');
         form.append('file', blob, 'sample-insurance.pdf');
       } else {
         if (!this.file) { this.error = 'No file selected'; this.loading.set(false); return; }
@@ -100,3 +137,38 @@ export class UploadComponent {
     } catch (e) { /* no-op */ }
   }
 }
+
+// Embedded minimal PDF content (ASCII PDF). Used as a last-resort fallback when asset/backend fetches are blocked.
+const EMBEDDED_SAMPLE_PDF = `%PDF-1.1
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [3 0 R] >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 500 200] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 94 >>
+stream
+BT /F1 12 Tf 20 160 Td (Sample Insurance Policy) Tj 0 -16 Td (Policy No: P-12345) Tj 0 -16 Td (Insurer: Acme Insurance Co.) Tj 0 -16 Td (Policyholder: John Doe) Tj 0 -16 Td (Effective: 2025-01-01) Tj 0 -16 Td (Expiry: 2026-01-01) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000010 00000 n 
+0000000060 00000 n 
+0000000110 00000 n 
+0000000210 00000 n 
+0000000290 00000 n 
+trailer
+<< /Root 1 0 R /Size 6 >>
+startxref
+360
+%%EOF
+`;
